@@ -22,3 +22,8 @@ func GetNumFromString(num_s string) int {
 	Check(err)
 	return num
 }
+
+// Remove element from array
+func RemoveFromList(slice []int, s int) []int {
+	return append(slice[:s], slice[s+1:]...)
+}

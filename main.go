@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	two.PartOne()
+	two.PartTwo()
 }
