@@ -1,11 +1,9 @@
 package main
 
 import (
-	"aoc2024/internal/one"
-	"fmt"
+	"aoc2024/internal/two"
 )
 
 func main() {
-	fmt.Println("Hello, world.")
-	one.SimilarityScore()
+	two.PartOne()
 }
