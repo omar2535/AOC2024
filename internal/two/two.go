@@ -99,34 +99,18 @@ func PartTwo() {
 		}
 
 		// normal case: length of row is 3 or more
-		// 				go through each number in the row
-		is_safe := true
-		for j := 2; j < split_length; j++ {
-			current_num := internal.GetNumFromString(split_nums_s[j])
-			previous_num := internal.GetNumFromString(split_nums_s[j-1])
-			previous_previous_num := internal.GetNumFromString(split_nums_s[j-2])
+		// First, check if it's safe with the default row
+		is_safe := isSafe(split_nums_s, split_length)
 
-			// check if the difference between curr_num and previous_num is safe
-			if internal.Abs(current_num, previous_num) > 3 || internal.Abs(current_num, previous_num) < 1 {
-				is_safe = false
-				break
-			} else if internal.Abs(previous_num, previous_previous_num) > 3 || internal.Abs(previous_num, previous_previous_num) < 1 {
-				is_safe = false
-				break
-			}
-
-			// check ioncrease/decrease/same
-			previous_pattern := previous_num - previous_previous_num
-			current_pattern := current_num - previous_num
-			if previous_pattern > 0 && current_pattern < 0 {
-				is_safe = false
-				break
-			} else if previous_pattern < 0 && current_pattern > 0 {
-				is_safe = false
-				break
-			} else if previous_pattern == 0 || current_pattern == 0 {
-				is_safe = false
-				break
+		// fmt.Println("split_num: ", split_nums_s)
+		if !is_safe {
+			for j := 0; j < split_length; j++ {
+				removed_split_nums_s := internal.RemoveFromList(split_nums_s, j)
+				// fmt.Println("split_num_removed: ", removed_split_nums_s, "index: ", j)
+				if isSafe(removed_split_nums_s, len(removed_split_nums_s)) {
+					is_safe = true
+					break
+				}
 			}
 		}
 
@@ -134,6 +118,8 @@ func PartTwo() {
 		if is_safe {
 			fmt.Println("Row: ", i+1, " is safe")
 			num_safe++
+		} else {
+			fmt.Println("Row: ", i+1, " is not safe")
 		}
 	}
 	fmt.Println("Number safe: ", num_safe)
@@ -144,6 +130,7 @@ func isSafe(split_nums_s []string, split_length int) bool {
 		current_num := internal.GetNumFromString(split_nums_s[j])
 		previous_num := internal.GetNumFromString(split_nums_s[j-1])
 		previous_previous_num := internal.GetNumFromString(split_nums_s[j-2])
+		// fmt.Println("current_num: ", current_num, " previous_num: ", previous_num, " previous_previous_num: ", previous_previous_num)
 
 		// check if the difference between curr_num and previous_num is safe
 		if internal.Abs(current_num, previous_num) > 3 || internal.Abs(current_num, previous_num) < 1 {
