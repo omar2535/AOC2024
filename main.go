@@ -8,5 +8,5 @@ import (
 )
 
 func main() {
-	four.PartOne()
+	four.PartTwo()
 }

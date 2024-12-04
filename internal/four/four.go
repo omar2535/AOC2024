@@ -32,6 +32,65 @@ func PartOne() {
 	fmt.Println(numXMAS)
 }
 
+func PartTwo() {
+	fileContents := internal.ReadFileIntoArray("res/day4/day4.txt")
+
+	// size of the grid
+	numRows := len(fileContents)
+
+	// Create the grid
+	grid := make([][]string, numRows)
+	for i := range grid {
+		grid[i] = strings.Split(fileContents[i], "")
+	}
+
+	// Iterate through the grid, find XMAS }
+	numXMAS := 0
+	for y := 0; y < numRows; y++ {
+		for x := 0; x < len(grid[y]); x++ {
+			foundNumXMAS := getNumCrossXMas(grid, x, y)
+			numXMAS += foundNumXMAS
+			if foundNumXMAS > 0 {
+				fmt.Printf("%d XMAS found at (%d, %d)\n", foundNumXMAS, x, y)
+			}
+		}
+	}
+	fmt.Println(numXMAS)
+}
+
+func getNumCrossXMas(grid [][]string, x int, y int) int {
+	numCrossXMAS := 0
+	if grid[y][x] == "A" {
+		fmt.Println("Found A at", x, y)
+		// Four different configurations
+		// 1. S   S
+		//      A
+		//    M   M
+		if lookUpLeft(grid, x, y, "AS") && lookDownRight(grid, x, y, "AM") && lookUpRight(grid, x, y, "AS") && lookDownLeft(grid, x, y, "AM") {
+			numCrossXMAS++
+		}
+		// 2. M   M
+		//      A
+		//    S   S
+		if lookUpLeft(grid, x, y, "AM") && lookDownRight(grid, x, y, "AS") && lookUpRight(grid, x, y, "AM") && lookDownLeft(grid, x, y, "AS") {
+			numCrossXMAS++
+		}
+		// 3. S   M
+		//      A
+		//    S   M
+		if lookUpLeft(grid, x, y, "AS") && lookDownRight(grid, x, y, "AM") && lookUpRight(grid, x, y, "AM") && lookDownLeft(grid, x, y, "AS") {
+			numCrossXMAS++
+		}
+		// 4. M   S
+		//      A
+		//    M   S
+		if lookUpLeft(grid, x, y, "AM") && lookDownRight(grid, x, y, "AS") && lookUpRight(grid, x, y, "AS") && lookDownLeft(grid, x, y, "AM") {
+			numCrossXMAS++
+		}
+	}
+	return numCrossXMAS
+}
+
 func getNumXMAS(grid [][]string, x int, y int) int {
 	keyword := "XMAS"
 	numXMAS := 0
