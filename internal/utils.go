@@ -1,6 +1,10 @@
 package internal
 
-import "strconv"
+import (
+	"os"
+	"strconv"
+	"strings"
+)
 
 func Check(e error) {
 	if e != nil {
@@ -29,4 +33,15 @@ func RemoveFromList[T any](s []T, index int) []T {
 	ret := make([]T, 0)
 	ret = append(ret, s[:index]...)
 	return append(ret, s[index+1:]...)
+}
+
+// Reads file into array of strings
+func ReadFileIntoArray(filepath string) []string {
+	file, err := os.ReadFile(filepath)
+	if err != nil {
+		panic(err)
+	}
+	var file_contents string = string(file)
+	var rows []string = strings.Split(file_contents, "\n")
+	return rows
 }
