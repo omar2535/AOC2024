@@ -20,10 +20,9 @@ func Abs(a int, b int) int {
 	return b - a
 }
 
-// Get number from string, panics if it isn't a number
+// Get number from string, returns 0 if not a number
 func GetNumFromString(num_s string) int {
-	num, err := strconv.Atoi(num_s)
-	Check(err)
+	num, _ := strconv.Atoi(num_s)
 	return num
 }
 
