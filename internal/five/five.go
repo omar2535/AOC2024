@@ -38,26 +38,8 @@ func PartOne(isTest bool) {
 	for i := 0; i < len(updates); i++ {
 		update := updates[i]
 		updateNums := strings.Split(update, ",")
-		isCorrect := true
-		for j := 0; j < len(updateNums); j++ {
-			currentNum := internal.GetNumFromString(updateNums[j])
-
-			// last number, don't do anything
-			if j == len(updateNums)-1 {
-				continue
-			}
-			// go through each following number and check if it follows the rules
-			for k := j + 1; k < len(updateNums); k++ {
-				checkNum := internal.GetNumFromString(updateNums[k])
-				if rulesMap[checkNum] == nil || !slices.Contains(rulesMap[checkNum], currentNum) {
-					isCorrect = false
-					break
-				}
-			}
-			if !isCorrect {
-				break
-			}
-		}
+		updateNumsInt := internal.StringArrayToIntArray(updateNums)
+		isCorrect := isCorrect(rulesMap, updateNumsInt)
 		if isCorrect {
 			validUpdates = append(validUpdates, update)
 		}
