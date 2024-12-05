@@ -44,3 +44,11 @@ func ReadFileIntoArray(filepath string) []string {
 	var rows []string = strings.Split(file_contents, "\n")
 	return rows
 }
+
+func StringArrayToIntArray(arr []string) []int {
+	ret := make([]int, len(arr))
+	for i := 0; i < len(arr); i++ {
+		ret[i] = GetNumFromString(arr[i])
+	}
+	return ret
+}

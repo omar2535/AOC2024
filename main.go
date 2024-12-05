@@ -9,5 +9,5 @@ import (
 )
 
 func main() {
-	five.PartOne(false)
+	five.PartTwo(false)
 }
