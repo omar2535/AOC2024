@@ -68,7 +68,7 @@ func PartTwo(isTest bool) {
 	visitedPositions[currentPosition][getGuardDirection(grid)] = true
 
 	// Create variable to track where we could add obstacle for cycle
-	var numObstacles int = 0
+	placedObstacles := make(map[position]bool)
 
 	// Keep ticking until we find a cycle
 	for {
@@ -82,12 +82,13 @@ func PartTwo(isTest bool) {
 		}
 		visitedPositions[currentPosition][getGuardDirection(grid)] = true
 		if doesTurningRightHaveCycle(grid, visitedPositions, currentPosition) {
-			numObstacles++
-			fmt.Println("Cycle found after adding obstacle at:", currentPosition)
+			placedObstaclePosition := getPlacedObstacle(currentPosition, getGuardDirection(grid))
+			placedObstacles[placedObstaclePosition] = true
+			fmt.Println("Cycle found after adding obstacle at:", placedObstaclePosition)
 		}
 	}
 	fmt.Println("Number of visited positions:", len(visitedPositions))
-	fmt.Println("Number of obstacles added:", numObstacles)
+	fmt.Println("Number of obstacles added:", len(placedObstacles))
 }
 
 func getGuardPosition(grid [][]string) position {
@@ -110,6 +111,19 @@ func getGuardDirection(grid [][]string) string {
 		}
 	}
 	return ""
+}
+
+func getPlacedObstacle(currentPosition position, currentDirection string) position {
+	if currentDirection == "^" {
+		return position{currentPosition.x, currentPosition.y - 1}
+	} else if currentDirection == "v" {
+		return position{currentPosition.x, currentPosition.y + 1}
+	} else if currentDirection == "<" {
+		return position{currentPosition.x - 1, currentPosition.y}
+	} else if currentDirection == ">" {
+		return position{currentPosition.x + 1, currentPosition.y}
+	}
+	return position{-1, -1}
 }
 
 func doesTurningRightHaveCycle(grid [][]string, visitedPositions map[position]map[string]bool, currentPosition position) bool {
