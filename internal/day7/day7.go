@@ -86,6 +86,7 @@ func PartTwo(isTest bool) {
 	fmt.Println("Total sum: ", sum)
 }
 
+// has the multiplciation (*) and (+) operators, which translates to (/) and (-) when working backwards
 func canHitTargetNumber(remainingNumbers []int, remainder int) bool {
 	// base case: only 1 thing left in the array, return it
 	if len(remainingNumbers) == 0 {
@@ -106,6 +107,7 @@ func canHitTargetNumber(remainingNumbers []int, remainder int) bool {
 	}
 }
 
+// for part 2 (now includes || operator, which in reverse is just the removal of the end character)
 func canHitTargetNumber2(remainingNumbers []int, remainder int) bool {
 	// base case: only 1 thing left in the array, return it
 	if len(remainingNumbers) == 0 {
@@ -120,13 +122,17 @@ func canHitTargetNumber2(remainingNumbers []int, remainder int) bool {
 		currentNumberString := strconv.Itoa(currentNumber)
 		doesEndWithCurrentNum := strings.HasSuffix(remainderString, currentNumberString)
 
-		// if not divisible, only do the subtraction
+		// subtraction is always available to do, so do that first
 		hasSubtraction := canHitTargetNumber2(newRemainingNumbers, remainder-currentNumber)
 		hasDivision := false
 		hasUnappend := false
+
+		// If we can divide into a whole number, it imples we are on the right track
 		if remainder%currentNumber == 0 {
 			hasDivision = canHitTargetNumber2(newRemainingNumbers, remainder/currentNumber)
 		}
+
+		// If the number if at the end, it imples we are on the right track
 		if doesEndWithCurrentNum {
 			newRemainderString := strings.TrimSuffix(remainderString, currentNumberString)
 			newRemainder := internal.GetNumFromString(newRemainderString)
