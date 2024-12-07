@@ -11,5 +11,5 @@ import (
 )
 
 func main() {
-	day7.PartOne()
+	day7.PartOne(false)
 }
