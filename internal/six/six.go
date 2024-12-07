@@ -59,36 +59,35 @@ func PartTwo(isTest bool) {
 		grid[i] = strings.Split(fileContents[i], "")
 	}
 
-	// Initial currentPosition
-	currentPosition := getGuardPosition(grid)
-	fmt.Println("Guard position:", currentPosition)
+	// For stats
+	totalGridSize := len(grid) * len(grid[0])
+
+	// Initial startingPosition
+	startingPosition := getGuardPosition(grid)
+	fmt.Println("Starting guard position:", startingPosition)
 
 	// Initialize map of visited positions
 	visitedPositions := make(map[position]map[string]bool)
-	visitedPositions[currentPosition] = make(map[string]bool)
-	visitedPositions[currentPosition][getGuardDirection(grid)] = true
+	visitedPositions[startingPosition] = make(map[string]bool)
+	visitedPositions[startingPosition][getGuardDirection(grid)] = true
 
 	// Create variable to track where we could add obstacle for cycle
 	placedObstacles := make(map[position]bool)
 
-	// Keep ticking until we find a cycle
-	for {
-		grid = tick(grid, currentPosition)
-		currentPosition = getGuardPosition(grid)
-		if currentPosition.x == -1 && currentPosition.y == -1 {
-			break
-		}
-		if visitedPositions[currentPosition] == nil {
-			visitedPositions[currentPosition] = make(map[string]bool)
-		}
-		visitedPositions[currentPosition][getGuardDirection(grid)] = true
-		if doesTurningRightHaveCycle(grid, visitedPositions, currentPosition) {
-			placedObstaclePosition := getPlacedObstacle(currentPosition, getGuardDirection(grid))
-			placedObstacles[placedObstaclePosition] = true
-			fmt.Println("Cycle found after adding obstacle at:", placedObstaclePosition)
+	// Add obstacle to different variations of the grid
+	for y := 0; y < len(grid); y++ {
+		for x := 0; x < len(grid[0]); x++ {
+			newGrid := internal.Clone2dArray(grid)
+			newGrid[y][x] = "#"
+			guardPosition := getGuardPosition(newGrid)
+			if willCycle(newGrid, visitedPositions, guardPosition) {
+				placedObstacles[position{x, y}] = true
+			}
+
+			fmt.Printf("Completion percent: %d / %d \r", (y*len(grid[x]) + x), totalGridSize)
 		}
 	}
-	fmt.Println("Number of visited positions:", len(visitedPositions))
+	fmt.Print("\n")
 	fmt.Println("Number of obstacles added:", len(placedObstacles))
 }
 
@@ -114,15 +113,15 @@ func getGuardDirection(grid [][]string) string {
 	return ""
 }
 
-func getPlacedObstacle(currentPosition position, currentDirection string) position {
+func getPlacedObstacle(startingPosition position, currentDirection string) position {
 	if currentDirection == "^" {
-		return position{currentPosition.x, currentPosition.y - 1}
+		return position{startingPosition.x, startingPosition.y - 1}
 	} else if currentDirection == "v" {
-		return position{currentPosition.x, currentPosition.y + 1}
+		return position{startingPosition.x, startingPosition.y + 1}
 	} else if currentDirection == "<" {
-		return position{currentPosition.x - 1, currentPosition.y}
+		return position{startingPosition.x - 1, startingPosition.y}
 	} else if currentDirection == ">" {
-		return position{currentPosition.x + 1, currentPosition.y}
+		return position{startingPosition.x + 1, startingPosition.y}
 	}
 	return position{-1, -1}
 }
@@ -159,7 +158,10 @@ func doesTurningRightHaveCycle(grid [][]string, visitedPositions map[position]ma
 	return willCycle(newGrid, newVisitedPositions, currentPosition)
 }
 
-func willCycle(grid [][]string, visitedPositions map[position]map[string]bool, currentPosition position) bool {
+func willCycle(inputGrid [][]string, inputVisitedPositions map[position]map[string]bool, currentPosition position) bool {
+	// Clone the grid and visited positions to not modify them
+	grid := internal.Clone2dArray(inputGrid)
+	visitedPositions := cloneVisited(inputVisitedPositions)
 	for {
 		// return if we went off the grid
 		if currentPosition.x == -1 && currentPosition.y == -1 {
