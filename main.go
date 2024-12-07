@@ -10,5 +10,5 @@ import (
 )
 
 func main() {
-	six.PartTwo(true)
+	six.PartTwo(false)
 }

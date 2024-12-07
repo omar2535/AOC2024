@@ -3,6 +3,7 @@ package six
 import (
 	"aoc2024/internal"
 	"fmt"
+	"maps"
 	"strings"
 )
 
@@ -151,33 +152,33 @@ func doesTurningRightHaveCycle(grid [][]string, visitedPositions map[position]ma
 		return true
 	}
 	// Check if keeping the same new direction has a cycle
-	newDirection := turnDirection(currentDirection)
-	if newDirection == "^" {
-		for i := currentPosition.y - 1; i >= 0; i-- {
-			if visitedPositions[position{currentPosition.x, i}] != nil && visitedPositions[position{currentPosition.x, i}][newDirection] {
-				return true
-			}
+	obstacleLocation := getPlacedObstacle(currentPosition, currentDirection)
+	newGrid := internal.Clone2dArray(grid)
+	newGrid[obstacleLocation.y][obstacleLocation.x] = "#"
+	newVisitedPositions := cloneVisited(visitedPositions)
+	return willCycle(newGrid, newVisitedPositions, currentPosition)
+}
+
+func willCycle(grid [][]string, visitedPositions map[position]map[string]bool, currentPosition position) bool {
+	for {
+		// return if we went off the grid
+		if currentPosition.x == -1 && currentPosition.y == -1 {
+			return false
 		}
-	} else if newDirection == "v" {
-		for i := currentPosition.y + 1; i < len(grid); i++ {
-			if visitedPositions[position{currentPosition.x, i}] != nil && visitedPositions[position{currentPosition.x, i}][newDirection] {
-				return true
-			}
+
+		newGrid := tick(grid, currentPosition)
+		newDirection := getGuardDirection(newGrid)
+		newPosition := getGuardPosition(newGrid)
+
+		if visitedPositions[newPosition] == nil {
+			visitedPositions[newPosition] = make(map[string]bool)
+			visitedPositions[newPosition][newDirection] = true
+		} else if visitedPositions[newPosition][newDirection] {
+			return true
 		}
-	} else if newDirection == "<" {
-		for i := currentPosition.x - 1; i >= 0; i-- {
-			if visitedPositions[position{i, currentPosition.y}] != nil && visitedPositions[position{i, currentPosition.y}][newDirection] {
-				return true
-			}
-		}
-	} else if newDirection == ">" {
-		for i := currentPosition.x + 1; i < len(grid[0]); i++ {
-			if visitedPositions[position{i, currentPosition.y}] != nil && visitedPositions[position{i, currentPosition.y}][newDirection] {
-				return true
-			}
-		}
+		grid = newGrid
+		currentPosition = newPosition
 	}
-	return false
 }
 
 func turnDirection(direction string) string {
@@ -240,4 +241,12 @@ func tick(grid [][]string, guardPosition position) [][]string {
 		}
 	}
 	return grid
+}
+
+func cloneVisited(visitedPositions map[position]map[string]bool) map[position]map[string]bool {
+	newVisitedPositions := make(map[position]map[string]bool)
+	for k, v := range visitedPositions {
+		newVisitedPositions[k] = maps.Clone(v)
+	}
+	return newVisitedPositions
 }

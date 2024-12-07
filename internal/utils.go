@@ -52,3 +52,13 @@ func StringArrayToIntArray(arr []string) []int {
 	}
 	return ret
 }
+
+func Clone2dArray(grid [][]string) [][]string {
+	clonedGrid := make([][]string, len(grid))
+	for i := 0; i < len(grid); i++ {
+		newRow := make([]string, len(grid[i]))
+		copy(newRow, grid[i])
+		clonedGrid[i] = newRow
+	}
+	return clonedGrid
+}
