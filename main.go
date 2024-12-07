@@ -1,14 +1,15 @@
 package main
 
 import (
-	_ "aoc2024/internal/five"
-	_ "aoc2024/internal/four"
-	_ "aoc2024/internal/one"
-	"aoc2024/internal/six"
-	_ "aoc2024/internal/three"
-	_ "aoc2024/internal/two"
+	_ "aoc2024/internal/day1"
+	_ "aoc2024/internal/day2"
+	_ "aoc2024/internal/day3"
+	_ "aoc2024/internal/day4"
+	_ "aoc2024/internal/day5"
+	_ "aoc2024/internal/day6"
+	"aoc2024/internal/day7"
 )
 
 func main() {
-	six.PartTwo(false)
+	day7.PartOne()
 }

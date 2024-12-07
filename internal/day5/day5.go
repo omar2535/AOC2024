@@ -1,4 +1,4 @@
-package five
+package day5
 
 import (
 	"aoc2024/internal"
