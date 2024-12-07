@@ -43,6 +43,53 @@ func PartOne(isTest bool) {
 	fmt.Println("Number of visited positions:", len(visitedPositions))
 }
 
+func PartTwo(isTest bool) {
+	fmt.Println("Day 6 part 2")
+	var fileContents []string
+	if isTest {
+		fileContents = internal.ReadFileIntoArray("res/day6//day6_example.txt")
+	} else {
+		fileContents = internal.ReadFileIntoArray("res/day6/day6.txt")
+	}
+
+	// Create a grid of len(fileContents) x len(fileContents[0])
+	grid := make([][]string, len(fileContents))
+	for i := 0; i < len(fileContents); i++ {
+		grid[i] = strings.Split(fileContents[i], "")
+	}
+
+	// Initial currentPosition
+	currentPosition := getGuardPosition(grid)
+	fmt.Println("Guard position:", currentPosition)
+
+	// Initialize map of visited positions
+	visitedPositions := make(map[position]map[string]bool)
+	visitedPositions[currentPosition] = make(map[string]bool)
+	visitedPositions[currentPosition][getGuardDirection(grid)] = true
+
+	// Create variable to track where we could add obstacle for cycle
+	var numObstacles int = 0
+
+	// Keep ticking until we find a cycle
+	for {
+		grid = tick(grid, currentPosition)
+		currentPosition = getGuardPosition(grid)
+		if currentPosition.x == -1 && currentPosition.y == -1 {
+			break
+		}
+		if visitedPositions[currentPosition] == nil {
+			visitedPositions[currentPosition] = make(map[string]bool)
+		}
+		visitedPositions[currentPosition][getGuardDirection(grid)] = true
+		if doesTurningRightHaveCycle(grid, visitedPositions, currentPosition) {
+			numObstacles++
+			fmt.Println("Cycle found after adding obstacle at:", currentPosition)
+		}
+	}
+	fmt.Println("Number of visited positions:", len(visitedPositions))
+	fmt.Println("Number of obstacles added:", numObstacles)
+}
+
 func getGuardPosition(grid [][]string) position {
 	for i := 0; i < len(grid); i++ {
 		for j := 0; j < len(grid[i]); j++ {
@@ -52,6 +99,84 @@ func getGuardPosition(grid [][]string) position {
 		}
 	}
 	return position{-1, -1}
+}
+
+func getGuardDirection(grid [][]string) string {
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[i]); j++ {
+			if grid[i][j] == "^" || grid[i][j] == "v" || grid[i][j] == "<" || grid[i][j] == ">" {
+				return grid[i][j]
+			}
+		}
+	}
+	return ""
+}
+
+func doesTurningRightHaveCycle(grid [][]string, visitedPositions map[position]map[string]bool, currentPosition position) bool {
+	currentDirection := getGuardDirection(grid)
+	if visitedPositions[currentPosition] == nil {
+		return false
+	}
+	if currentPosition.x == -1 && currentPosition.y == -1 {
+		return false
+	}
+	if currentDirection == "^" && currentPosition.y == 0 {
+		return false
+	}
+	if currentDirection == "v" && currentPosition.y == len(grid)-1 {
+		return false
+	}
+	if currentDirection == "<" && currentPosition.x == 0 {
+		return false
+	}
+	if currentDirection == ">" && currentPosition.x == len(grid[0])-1 {
+		return false
+	}
+	// Get the turned direction
+	if visitedPositions[currentPosition][turnDirection(currentDirection)] {
+		return true
+	}
+	// Check if keeping the same new direction has a cycle
+	newDirection := turnDirection(currentDirection)
+	if newDirection == "^" {
+		for i := currentPosition.y - 1; i >= 0; i-- {
+			if visitedPositions[position{currentPosition.x, i}] != nil && visitedPositions[position{currentPosition.x, i}][newDirection] {
+				return true
+			}
+		}
+	} else if newDirection == "v" {
+		for i := currentPosition.y + 1; i < len(grid); i++ {
+			if visitedPositions[position{currentPosition.x, i}] != nil && visitedPositions[position{currentPosition.x, i}][newDirection] {
+				return true
+			}
+		}
+	} else if newDirection == "<" {
+		for i := currentPosition.x - 1; i >= 0; i-- {
+			if visitedPositions[position{i, currentPosition.y}] != nil && visitedPositions[position{i, currentPosition.y}][newDirection] {
+				return true
+			}
+		}
+	} else if newDirection == ">" {
+		for i := currentPosition.x + 1; i < len(grid[0]); i++ {
+			if visitedPositions[position{i, currentPosition.y}] != nil && visitedPositions[position{i, currentPosition.y}][newDirection] {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func turnDirection(direction string) string {
+	if direction == "^" {
+		return ">"
+	} else if direction == "v" {
+		return "<"
+	} else if direction == "<" {
+		return "^"
+	} else if direction == ">" {
+		return "v"
+	}
+	return ""
 }
 
 // Ticks the guard grid
