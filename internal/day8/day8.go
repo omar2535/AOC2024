@@ -56,6 +56,52 @@ func PartOne(isTest bool) {
 	fmt.Println("Number of antinode positions:", len(antinodePositionsMap))
 }
 
+func PartTwo(isTest bool) {
+	fmt.Println("Day 8 part 2")
+
+	// file contents
+	var fileContents []string
+
+	// Read the file
+	if isTest {
+		fileContents = internal.ReadFileIntoArray("res/day8/day8_example.txt")
+	} else {
+		fileContents = internal.ReadFileIntoArray("res/day8/day8.txt")
+	}
+
+	// Go through the file and convert to 2d array of strings
+	var grid [][]string = internal.ConvertStringListToGrid(fileContents, "")
+
+	// Variables we'll need to store positions
+	var antinodePositionsMap map[position]bool = make(map[position]bool)
+	var nodePositionsMap map[string][]position = make(map[string][]position)
+
+	// First iteration: go through the grid and find all the node positions
+	for y := 0; y < len(grid); y++ {
+		for x := 0; x < len(grid[y]); x++ {
+			if grid[y][x] != "." {
+				nodeType := grid[y][x]
+				currentPosition := position{x: x, y: y}
+				if _, ok := nodePositionsMap[nodeType]; !ok {
+					nodePositionsMap[nodeType] = make([]position, 0)
+				}
+				nodePositionsMap[nodeType] = append(nodePositionsMap[nodeType], currentPosition)
+			}
+		}
+	}
+
+	// Second iteration: go through each node type and find their antinode maps
+	for _, nodePositions := range nodePositionsMap {
+		antinodePositionsMapFound := getAntinodePositionsExtended(grid, nodePositions)
+		fmt.Println(antinodePositionsMapFound)
+		for antinodePosition := range antinodePositionsMapFound {
+			antinodePositionsMap[antinodePosition] = true
+		}
+	}
+
+	fmt.Println("Number of antinode positions:", len(antinodePositionsMap))
+}
+
 // get the antiNode positions for the node
 func getAntinodePositions(grid [][]string, nodePositions []position) map[position]bool {
 	antinodePositionsMap := make(map[position]bool)
@@ -68,6 +114,26 @@ func getAntinodePositions(grid [][]string, nodePositions []position) map[positio
 			}
 			comparedNodePosition := nodePositions[j]
 			antiNodesList := getAntinodesForPositionPair(grid, firstNodePosition, comparedNodePosition)
+			for _, antinodePosition := range antiNodesList {
+				antinodePositionsMap[antinodePosition] = true
+			}
+		}
+	}
+	return antinodePositionsMap
+}
+
+// get the antiNode positions for the node
+func getAntinodePositionsExtended(grid [][]string, nodePositions []position) map[position]bool {
+	antinodePositionsMap := make(map[position]bool)
+	for i := 0; i < len(nodePositions); i++ {
+		firstNodePosition := nodePositions[i]
+		for j := i; j < len(nodePositions); j++ {
+			// skip if it's just the node on top of itself
+			if i == j {
+				continue
+			}
+			comparedNodePosition := nodePositions[j]
+			antiNodesList := getAntinodesForPositionPairExtended(grid, firstNodePosition, comparedNodePosition)
 			for _, antinodePosition := range antiNodesList {
 				antinodePositionsMap[antinodePosition] = true
 			}
@@ -94,6 +160,39 @@ func getAntinodesForPositionPair(grid [][]string, position1 position, position2 
 	}
 	if isPositionInBounds(len(grid[0]), len(grid), antinode2) {
 		result = append(result, antinode2)
+	}
+	return result
+}
+
+// Get a list of anitnodes for pair of positions extended until we hit the edge
+// IE. (2, 2,), (3, 3) -> [(1, 1), (4, 4)]
+// IE: (3, 3), (5, 4) -> [(1, 2), (7, 5)]
+func getAntinodesForPositionPairExtended(grid [][]string, position1 position, position2 position) []position {
+	result := make([]position, 0)
+	width := len(grid[0])
+	height := len(grid)
+	p1XDiff := position1.x - position2.x
+	p1YDiff := position1.y - position2.y
+	p2XDiff := position2.x - position1.x
+	p2YDiff := position2.y - position1.y
+
+	// Get anti-node(s) for p1 edge
+	antinode1 := position{x: position1.x + p1XDiff, y: position1.y + p1YDiff}
+	result = append(result, position1)
+	currAntinode1 := antinode1
+	for isPositionInBounds(width, height, currAntinode1) {
+		result = append(result, currAntinode1)
+		currAntinode1 = position{x: currAntinode1.x + p1XDiff, y: currAntinode1.y + p1YDiff}
+	}
+
+	// Get anti-node(s) for p2 edge
+
+	antinode2 := position{x: position2.x + p2XDiff, y: position2.y + p2YDiff}
+	result = append(result, position2)
+	currAntinode2 := antinode2
+	for isPositionInBounds(width, height, currAntinode2) {
+		result = append(result, currAntinode2)
+		currAntinode2 = position{x: currAntinode2.x + p2XDiff, y: currAntinode2.y + p2YDiff}
 	}
 	return result
 }
