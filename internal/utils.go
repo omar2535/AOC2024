@@ -62,3 +62,12 @@ func Clone2dArray(grid [][]string) [][]string {
 	}
 	return clonedGrid
 }
+
+func ConvertStringListToGrid(inputList []string, delminator string) [][]string {
+	grid := make([][]string, len(inputList))
+	for i := 0; i < len(inputList); i++ {
+		currentRow := inputList[i]
+		grid[i] = strings.Split(currentRow, delminator)
+	}
+	return grid
+}
