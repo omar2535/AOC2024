@@ -8,9 +8,10 @@ import (
 	_ "aoc2024/internal/day5"
 	_ "aoc2024/internal/day6"
 	_ "aoc2024/internal/day7"
-	"aoc2024/internal/day8"
+	_ "aoc2024/internal/day8"
+	"aoc2024/internal/day9"
 )
 
 func main() {
-	day8.PartTwo(false)
+	day9.PartOne(true)
 }
