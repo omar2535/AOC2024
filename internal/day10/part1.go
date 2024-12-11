@@ -35,23 +35,6 @@ func PartOne(isTest bool) {
 	fmt.Println("Total number of paths that lead to 9:", total)
 }
 
-// compute the number of paths that lead to 9
-func computeNumPathsThatLeadTo9(node node) int {
-	if node.value == 9 {
-		return 1
-	} else if len(node.links) == 0 {
-		return 0
-	}
-
-	var total int = 0
-	for _, link := range node.links {
-		fmt.Println("link: ", link.value)
-		total += computeNumPathsThatLeadTo9(*link)
-		fmt.Println("total: ", total)
-	}
-	return total
-}
-
 func get9sReachedFromNode(currentNode node) []node {
 	if currentNode.value == 9 {
 		return []node{currentNode}
