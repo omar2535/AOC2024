@@ -2,7 +2,8 @@ package main
 
 import (
 	_ "aoc2024/internal/day1"
-	"aoc2024/internal/day10"
+	_ "aoc2024/internal/day10"
+	"aoc2024/internal/day11"
 	_ "aoc2024/internal/day2"
 	_ "aoc2024/internal/day3"
 	_ "aoc2024/internal/day4"
@@ -14,5 +15,5 @@ import (
 )
 
 func main() {
-	day10.PartTwo(false)
+	day11.PartOne(false)
 }
