@@ -17,7 +17,6 @@ func PartTwo(isTest bool) {
 		fileContents = internal.ReadFileIntoArray("res/day10/day10.txt")
 	}
 
-	fmt.Println(fileContents)
 	var grid [][]string = internal.ConvertStringListToGrid(fileContents, "")
 	var nodeGrid [][]node = create2dNodeArrayFromGrid(grid)
 	nodeGrid = linkNodes(nodeGrid)
