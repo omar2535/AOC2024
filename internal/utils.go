@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -53,10 +54,10 @@ func StringArrayToIntArray(arr []string) []int {
 	return ret
 }
 
-func Clone2dArray(grid [][]string) [][]string {
-	clonedGrid := make([][]string, len(grid))
+func Clone2dArray[T any](grid [][]T) [][]T {
+	clonedGrid := make([][]T, len(grid))
 	for i := 0; i < len(grid); i++ {
-		newRow := make([]string, len(grid[i]))
+		newRow := make([]T, len(grid[i]))
 		copy(newRow, grid[i])
 		clonedGrid[i] = newRow
 	}
@@ -70,4 +71,12 @@ func ConvertStringListToGrid(inputList []string, delminator string) [][]string {
 		grid[i] = strings.Split(currentRow, delminator)
 	}
 	return grid
+}
+
+// Print functions
+func Print2dArray[T any](grid [][]T) {
+	for i := 0; i < len(grid); i++ {
+		fmt.Printf("%v ", grid[i])
+		println()
+	}
 }
