@@ -46,6 +46,8 @@ func PartTwo(isTest bool) {
 	var arrangement []int = internal.StringArrayToIntArray(strings.Split(fileContents[0], " "))
 	var arrangementMap map[int]int = initialBlinkMap(arrangement)
 
+	// Blinks the arrangement using a map
+	// Assumes we don't care about the order of the pebbles
 	for index := range timesToBlink {
 		arrangementMap = blinkMap(arrangementMap)
 		fmt.Println("Progress: ", index+1, "/", timesToBlink, "\r")
@@ -74,6 +76,7 @@ func blink(arrangement []int) []int {
 }
 
 // blinks recursively at a single pebble, returns number of pebbles after blinking
+// My attempt at making part2 not memory inefficient
 func blinkRecursive(pebble int, numTimesToBlink int) int {
 	if numTimesToBlink == 0 {
 		return 1
@@ -91,6 +94,7 @@ func blinkRecursive(pebble int, numTimesToBlink int) int {
 	}
 }
 
+// Blinks the arrangement by using it as a map
 func blinkMap(arrangement map[int]int) map[int]int {
 	var newArrangement map[int]int = make(map[int]int)
 	for pebble, count := range arrangement {
@@ -111,6 +115,7 @@ func blinkMap(arrangement map[int]int) map[int]int {
 	return newArrangement
 }
 
+// Converts the arrangement into a map
 func initialBlinkMap(arrangement []int) map[int]int {
 	var newMap map[int]int = make(map[int]int)
 	for _, pebble := range arrangement {
