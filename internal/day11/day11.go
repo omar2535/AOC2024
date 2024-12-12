@@ -11,7 +11,7 @@ func PartOne(isTest bool) {
 	fmt.Println("Day 11 part 1")
 
 	// Some initial variables
-	var timesToBlink int = 75
+	var timesToBlink int = 25
 	var fileContents []string
 
 	if isTest {
@@ -44,14 +44,14 @@ func PartTwo(isTest bool) {
 	}
 
 	var arrangement []int = internal.StringArrayToIntArray(strings.Split(fileContents[0], " "))
+	var arrangementMap map[int]int = initialBlinkMap(arrangement)
 
-	var total int = 0
-	for index, pebble := range arrangement {
-		total += blinkRecursive(pebble, timesToBlink)
-		fmt.Println("Progress: ", index+1, "/", len(arrangement), "\r")
+	for index := range timesToBlink {
+		arrangementMap = blinkMap(arrangementMap)
+		fmt.Println("Progress: ", index+1, "/", timesToBlink, "\r")
 	}
 
-	fmt.Println("Number of pebbles after blinking", total)
+	fmt.Println("Number of pebbles after blinking", calculateTotal(arrangementMap))
 }
 
 // Blinks once, returns the new arrangement
@@ -89,6 +89,43 @@ func blinkRecursive(pebble int, numTimesToBlink int) int {
 			return blinkRecursive(pebble*2024, numTimesToBlink-1)
 		}
 	}
+}
+
+func blinkMap(arrangement map[int]int) map[int]int {
+	var newArrangement map[int]int = make(map[int]int)
+	for pebble, count := range arrangement {
+		var newPebbles []int
+		if pebble == 0 {
+			newPebbles = []int{1}
+		} else if hasEvenDigits(pebble) {
+			firstHalf := strconv.Itoa(pebble)[:len(strconv.Itoa(pebble))/2]
+			secondHalf := strconv.Itoa(pebble)[len(strconv.Itoa(pebble))/2:]
+			newPebbles = []int{internal.GetNumFromString(firstHalf), internal.GetNumFromString(secondHalf)}
+		} else {
+			newPebbles = []int{pebble * 2024}
+		}
+		for _, newPebble := range newPebbles {
+			newArrangement[newPebble] += count
+		}
+	}
+	return newArrangement
+}
+
+func initialBlinkMap(arrangement []int) map[int]int {
+	var newMap map[int]int = make(map[int]int)
+	for _, pebble := range arrangement {
+		newMap[pebble]++
+	}
+	return newMap
+}
+
+// Calculates total number of pebbles in an arrangement
+func calculateTotal(arrangement map[int]int) int {
+	var total int = 0
+	for _, count := range arrangement {
+		total += count
+	}
+	return total
 }
 
 // Checks if a pebble has even digits
