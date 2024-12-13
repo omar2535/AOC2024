@@ -220,8 +220,8 @@ func computeNumberOfSides(grid [][]string, positions []Position, regionId string
 	return numEdges
 }
 
-// Checks the square starting from the position given
-// If the square has 3 regions, then it's an edge
+// Checks the (4x4) square to see if it's an edge.
+// Possible cases: 1 edge, 3 edges, 2 edges (diagnoally opposite)
 // The square is defined starting from the top left corner
 func getNumEdge(grid [][]string, x int, y int, regionId string, regionPositions []Position) int {
 	var curr string
