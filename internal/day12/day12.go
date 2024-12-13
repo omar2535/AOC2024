@@ -77,7 +77,7 @@ func PartTwo(isTest bool) {
 	var fileContents []string
 
 	if isTest {
-		fileContents = internal.ReadFileIntoArray("res/day12/day12_example.txt")
+		fileContents = internal.ReadFileIntoArray("res/day12/day12_example_3.txt")
 	} else {
 		fileContents = internal.ReadFileIntoArray("res/day12/day12.txt")
 	}
@@ -213,10 +213,7 @@ func computeNumberOfSides(grid [][]string, positions []Position, regionId string
 	for y := minY - 1; y <= maxY; y++ {
 		for x := minX - 1; x <= maxX; x++ {
 			// Check if it's a edge
-			if isedge(grid, x, y, regionId, positions) {
-				fmt.Println("Edge at: ", x, y)
-				numEdges++
-			}
+			numEdges += getNumEdge(grid, x, y, regionId, positions)
 		}
 	}
 	return numEdges
@@ -225,16 +222,16 @@ func computeNumberOfSides(grid [][]string, positions []Position, regionId string
 // Checks the square starting from the position given
 // If the square has 3 regions, then it's an edge
 // The square is defined starting from the top left corner
-func isedge(grid [][]string, x int, y int, regionId string, regionPositions []Position) bool {
+func getNumEdge(grid [][]string, x int, y int, regionId string, regionPositions []Position) int {
 	var curr string
 	var right string
-	var bottmLeft string
-	var bottmRight string
+	var bottomLeft string
+	var bottomRight string
 
 	// if position is out of bounds for the grid, make it *
 	if x+1 == 0 {
 		curr = "*"
-		bottmLeft = "*"
+		bottomLeft = "*"
 	}
 	if y+1 == 0 {
 		curr = "*"
@@ -242,11 +239,11 @@ func isedge(grid [][]string, x int, y int, regionId string, regionPositions []Po
 	}
 	if x+1 >= len(grid) {
 		right = "*"
-		bottmRight = "*"
+		bottomRight = "*"
 	}
 	if y+1 >= len(grid) {
-		bottmLeft = "*"
-		bottmRight = "*"
+		bottomLeft = "*"
+		bottomRight = "*"
 	}
 
 	// If we weren't out of bounds, then replace it with the correct value
@@ -265,31 +262,38 @@ func isedge(grid [][]string, x int, y int, regionId string, regionPositions []Po
 			right = "*"
 		}
 	}
-	if bottmLeft != "*" {
+	if bottomLeft != "*" {
 		if grid[y+1][x] == regionId && slices.Contains(regionPositions, Position{x: x, y: y + 1}) {
-			bottmLeft = grid[y+1][x]
+			bottomLeft = grid[y+1][x]
 		} else {
-			bottmLeft = "*"
+			bottomLeft = "*"
 		}
 	}
-	if bottmRight != "*" {
+	if bottomRight != "*" {
 		if grid[y+1][x+1] == regionId && slices.Contains(regionPositions, Position{x: x + 1, y: y + 1}) {
-			bottmRight = grid[y+1][x+1]
+			bottomRight = grid[y+1][x+1]
 		} else {
-			bottmRight = "*"
+			bottomRight = "*"
 		}
 	}
 	distinctRegions := make(map[string]int)
 	distinctRegions[curr] += 1
 	distinctRegions[right] += 1
-	distinctRegions[bottmLeft] += 1
-	distinctRegions[bottmRight] += 1
+	distinctRegions[bottomLeft] += 1
+	distinctRegions[bottomRight] += 1
 
 	// If the number of regions for our region in this square is 3 or 1, then it's an edge
+	// Or if edges are oppposite of each other
 	if distinctRegions[regionId] == 3 || distinctRegions[regionId] == 1 {
-		return true
+		return 1
+	} else if distinctRegions[regionId] == 2 {
+		if curr == bottomRight && right == bottomLeft {
+			return 2
+		} else {
+			return 0
+		}
 	} else {
-		return false
+		return 0
 	}
 }
 
