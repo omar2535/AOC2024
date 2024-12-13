@@ -3,6 +3,7 @@ package day12
 import (
 	"aoc2024/internal"
 	"fmt"
+	"slices"
 )
 
 type Position struct {
@@ -14,6 +15,7 @@ type Region struct {
 	regionId  string
 	area      int
 	perimeter int
+	numSides  int
 	positions map[Position]bool
 }
 
@@ -52,7 +54,14 @@ func PartOne(isTest bool) {
 				}
 				// Add the regions that we have seen
 				perimeter := computePerimiter(grid, connectedRegionsMap)
-				regions = append(regions, Region{regionId: grid[y][x], area: len(connectedRegions), perimeter: perimeter, positions: connectedRegionsMap})
+				newRegion := Region{
+					regionId:  grid[y][x],
+					area:      len(connectedRegions),
+					perimeter: perimeter,
+					positions: connectedRegionsMap,
+					numSides:  0,
+				}
+				regions = append(regions, newRegion)
 			}
 		}
 	}
@@ -61,6 +70,69 @@ func PartOne(isTest bool) {
 	fmt.Println(regions)
 	fmt.Println(grid)
 	fmt.Println("Total price: ", computePrice(regions))
+}
+
+func PartTwo(isTest bool) {
+	// Some initial variables
+	var fileContents []string
+
+	if isTest {
+		fileContents = internal.ReadFileIntoArray("res/day12/day12_example.txt")
+	} else {
+		fileContents = internal.ReadFileIntoArray("res/day12/day12.txt")
+	}
+
+	// Convert to grid
+	grid := internal.ConvertStringListToGrid(fileContents, "")
+
+	// Create a list of regions and the visited
+	regions := make([]Region, 0)
+	visited := make([][]bool, len(grid))
+	for i := range visited {
+		visited[i] = make([]bool, len(grid[i]))
+	}
+
+	// Go througy the grid and add regions
+	for y := 0; y < len(grid); y++ {
+		for x := 0; x < len(grid[y]); x++ {
+			if visited[y][x] {
+				continue
+			} else {
+				connectedRegionsMap := make(map[Position]bool)
+				connectedRegions := getConnectedRegions(grid, x, y, grid[y][x], visited)
+				// Update the visited with the regions connected
+				for _, connectedRegion := range connectedRegions {
+					visited[connectedRegion.y][connectedRegion.x] = true
+					connectedRegionsMap[connectedRegion] = true
+				}
+				// Add the regions that we have seen
+				regionId := grid[y][x]
+				perimeter := computePerimiter(grid, connectedRegionsMap)
+				numSides := computeNumberOfSides(grid, connectedRegions, regionId)
+				newRegion := Region{
+					regionId:  grid[y][x],
+					area:      len(connectedRegions),
+					perimeter: perimeter,
+					positions: connectedRegionsMap,
+					numSides:  numSides,
+				}
+				regions = append(regions, newRegion)
+			}
+		}
+	}
+
+	// Print the results
+	fmt.Println(regions)
+	fmt.Println(grid)
+	fmt.Println("Total price: ", computeNewPrices(regions))
+}
+
+func computeNewPrices(regions []Region) int {
+	total := 0
+	for _, region := range regions {
+		total += region.area * region.numSides
+	}
+	return total
 }
 
 func computePrice(regions []Region) int {
@@ -124,4 +196,139 @@ func getConnectedRegions(grid [][]string, x int, y int, regionId string, visited
 	connectedRegions = append(connectedRegions, getConnectedRegions(grid, x, y-1, regionId, visited)...)
 
 	return connectedRegions
+}
+
+// sliding window to find all the edges (# edges = # of sides)
+func computeNumberOfSides(grid [][]string, positions []Position, regionId string) int {
+	if regionId == "*" {
+		return 0
+	}
+	numEdges := 0
+	// Find the borders (min/max x and y)
+	minX := getMinX(positions)
+	maxX := getMaxX(positions)
+	minY := getMinY(positions)
+	maxY := getMaxY(positions)
+
+	for y := minY - 1; y <= maxY; y++ {
+		for x := minX - 1; x <= maxX; x++ {
+			// Check if it's a edge
+			if isedge(grid, x, y, regionId, positions) {
+				fmt.Println("Edge at: ", x, y)
+				numEdges++
+			}
+		}
+	}
+	return numEdges
+}
+
+// Checks the square starting from the position given
+// If the square has 3 regions, then it's an edge
+// The square is defined starting from the top left corner
+func isedge(grid [][]string, x int, y int, regionId string, regionPositions []Position) bool {
+	var curr string
+	var right string
+	var bottmLeft string
+	var bottmRight string
+
+	// if position is out of bounds for the grid, make it *
+	if x+1 == 0 {
+		curr = "*"
+		bottmLeft = "*"
+	}
+	if y+1 == 0 {
+		curr = "*"
+		right = "*"
+	}
+	if x+1 >= len(grid) {
+		right = "*"
+		bottmRight = "*"
+	}
+	if y+1 >= len(grid) {
+		bottmLeft = "*"
+		bottmRight = "*"
+	}
+
+	// If we weren't out of bounds, then replace it with the correct value
+	// In each replacement, make sure it's still part of our region
+	if curr != "*" {
+		if grid[y][x] == regionId && slices.Contains(regionPositions, Position{x: x, y: y}) {
+			curr = grid[y][x]
+		} else {
+			curr = "*"
+		}
+	}
+	if right != "*" {
+		if grid[y][x+1] == regionId && slices.Contains(regionPositions, Position{x: x + 1, y: y}) {
+			right = grid[y][x+1]
+		} else {
+			right = "*"
+		}
+	}
+	if bottmLeft != "*" {
+		if grid[y+1][x] == regionId && slices.Contains(regionPositions, Position{x: x, y: y + 1}) {
+			bottmLeft = grid[y+1][x]
+		} else {
+			bottmLeft = "*"
+		}
+	}
+	if bottmRight != "*" {
+		if grid[y+1][x+1] == regionId && slices.Contains(regionPositions, Position{x: x + 1, y: y + 1}) {
+			bottmRight = grid[y+1][x+1]
+		} else {
+			bottmRight = "*"
+		}
+	}
+	distinctRegions := make(map[string]int)
+	distinctRegions[curr] += 1
+	distinctRegions[right] += 1
+	distinctRegions[bottmLeft] += 1
+	distinctRegions[bottmRight] += 1
+
+	// If the number of regions for our region in this square is 3 or 1, then it's an edge
+	if distinctRegions[regionId] == 3 || distinctRegions[regionId] == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func getMinX(positions []Position) int {
+	minX := positions[0].x
+	for _, position := range positions {
+		if position.x < minX {
+			minX = position.x
+		}
+	}
+	return minX
+}
+
+func getMaxX(positions []Position) int {
+	maxX := positions[0].x
+	for _, position := range positions {
+		if position.x > maxX {
+			maxX = position.x
+		}
+	}
+	return maxX
+}
+
+func getMinY(positions []Position) int {
+	minY := positions[0].y
+	for _, position := range positions {
+		if position.y < minY {
+			minY = position.y
+		}
+	}
+	return minY
+}
+
+func getMaxY(positions []Position) int {
+	maxY := positions[0].y
+	for _, position := range positions {
+		if position.y > maxY {
+			maxY = position.y
+		}
+	}
+	return maxY
 }
