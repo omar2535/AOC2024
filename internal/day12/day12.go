@@ -72,6 +72,7 @@ func PartOne(isTest bool) {
 	fmt.Println("Total price: ", computePrice(regions))
 }
 
+// sliding window aproach
 func PartTwo(isTest bool) {
 	// Some initial variables
 	var fileContents []string
