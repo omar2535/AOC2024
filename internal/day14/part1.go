@@ -45,9 +45,6 @@ func PartOne(isTest bool) {
 	// Count robots in each quadrant
 	quadrantCounts := countRobotsInEachQuadrant(robots, width, height)
 
-	fmt.Println(quadrantCounts)
-	fmt.Println(robots)
-	fmt.Println(fileContents, width, height)
 	fmt.Println("Safety factor:", quadrantCounts[0]*quadrantCounts[1]*quadrantCounts[2]*quadrantCounts[3])
 }
 
