@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type Position struct {
+	X int
+	Y int
+}
+
 func Check(e error) {
 	if e != nil {
 		panic(e)
