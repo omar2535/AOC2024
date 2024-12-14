@@ -80,3 +80,14 @@ func Print2dArray[T any](grid [][]T) {
 		println()
 	}
 }
+
+// Greatest common denominator using Euclidean algorithm
+func GCD(a int, b int) int {
+	if b == 0 {
+		return a
+	}
+	tmp := a
+	a = b
+	b = tmp % a
+	return GCD(a, b)
+}

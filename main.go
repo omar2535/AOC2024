@@ -4,7 +4,8 @@ import (
 	_ "aoc2024/internal/day1"
 	_ "aoc2024/internal/day10"
 	_ "aoc2024/internal/day11"
-	"aoc2024/internal/day12"
+	_ "aoc2024/internal/day12"
+	"aoc2024/internal/day13"
 	_ "aoc2024/internal/day2"
 	_ "aoc2024/internal/day3"
 	_ "aoc2024/internal/day4"
@@ -16,5 +17,5 @@ import (
 )
 
 func main() {
-	day12.PartTwo(false)
+	day13.PartTwo(false)
 }
