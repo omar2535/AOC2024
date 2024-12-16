@@ -20,5 +20,5 @@ import (
 
 // Main function, call various days and their parts here
 func main() {
-	day15.PartTwo(true)
+	day15.PartTwo(false)
 }
